@@ -1,0 +1,79 @@
+#version 330
+
+in vec3 retFragPos;
+in vec3 retNormal;
+in vec2 retTexCoord;
+in vec3 retViewDirection;
+in vec2 retTexTranslation;
+in mat4 retWorld;
+in mat3 retTBN;
+
+out vec4 FragColor;
+
+struct Material
+{
+	float specularStrength;
+	sampler2D diffuseTexture;
+	sampler2D specularTexture;
+	sampler2D normalTexture;
+};
+
+struct Light
+{
+	vec3 position;
+	vec3 direction;
+	vec3 color;
+	vec3 ambientColor;
+	vec3 diffuseColor;
+	vec3 specularColor;
+
+	float constant;
+	float linear;
+	float quadratic;
+
+	float coneAngle;
+	float falloff;
+};
+
+uniform Material material;
+#define NUM_LIGHTS 4
+uniform Light light[NUM_LIGHTS];
+uniform int numLights;
+uniform bool EnableNormalMaps = false;
+
+void main()
+{
+	vec4 diffColor = texture(material.diffuseTexture, retTexCoord);
+	if (diffColor.a == 0)
+	{
+		discard;
+	}
+
+	vec4 finalColor = vec4(0);
+	for (int i = 0; i < numLights; i++)
+	{
+		vec3 lightDir = normalize(light[i].position - retFragPos);
+
+		vec3 normal = retNormal;
+		if (EnableNormalMaps == true)
+		{
+			normal = texture(material.normalTexture, retTexCoord).rgb;
+			normal = normal * 2.0 - 1.0;
+			normal = normalize(retTBN * normal);
+		}
+		float lambertianStrength = max(dot(lightDir, normal), 0.0f);
+
+		vec3 refl = reflect(-lightDir, normal);
+		float specularStrength = pow(max(dot(refl, retViewDirection), 0.0f), material.specularStrength);
+
+		float distance  = length(light[i].position - retFragPos);
+		float att = 1.0f / (light[i].constant + light[i].linear * distance + light[i].quadratic * (distance * distance));
+
+		vec3 ambient = diffColor.rgb * light[i].ambientColor / NUM_LIGHTS;
+		vec3 lambertian = lambertianStrength * diffColor.rgb * light[i].diffuseColor * att;
+		vec3 specular = specularStrength * texture(material.specularTexture, retTexCoord).rgb * light[i].specularColor * att;
+
+		finalColor += vec4(lambertian + specular + ambient, 1.0f);
+	}
+	FragColor = vec4(finalColor.rgb, diffColor.a);
+}

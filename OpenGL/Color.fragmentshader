@@ -1,0 +1,10 @@
+#version 330
+
+uniform vec3 lightColor;
+
+out vec4 FragColor;
+
+void main()
+{
+	FragColor = vec4(lightColor.x, lightColor.y, lightColor.z, 1.0f);
+}

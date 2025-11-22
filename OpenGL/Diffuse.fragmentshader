@@ -1,0 +1,72 @@
+#version 330
+
+in vec3 retFragPos;
+in vec3 retNormal;
+in vec2 retTexCoord;
+in vec3 retViewDirection;
+in vec2 retTexTranslation;
+
+out vec4 FragColor;
+
+struct Material
+{
+	float specularStrength;
+	sampler2D diffuseTexture;
+	sampler2D specularTexture;
+};
+
+struct Light
+{
+	vec3 position;
+	vec3 direction;
+	vec3 color;
+	vec3 ambientColor;
+	vec3 diffuseColor;
+	vec3 specularColor;
+
+	float constant;
+	float linear;
+	float quadratic;
+
+	float coneAngle;
+	float falloff;
+};
+
+uniform Material material;
+#define NUM_LIGHTS 4
+uniform Light light[NUM_LIGHTS];
+uniform int numLights;
+
+void main()
+{
+	vec4 finalColor = vec4(0);
+	for (int i = 0; i < numLights; i++)
+	{
+		vec3 lightDir = (light[i].quadratic == 0 && light[i].linear == 0) ? normalize(-light[i].direction) : normalize(light[i].position - retFragPos);
+
+		float a = cos(light[i].coneAngle);
+		float d = dot(normalize(light[i].direction), -lightDir);
+
+		float lambertianStrength = dot(lightDir, retNormal);
+		vec3 refl = reflect(-lightDir, retNormal);
+		float specularStrength = pow(max(dot(refl, retViewDirection), 0.0f), material.specularStrength);
+
+		float distance  = length(light[i].position - retFragPos);
+		float att = 1.0f / (light[i].constant + light[i].linear * distance + light[i].quadratic * (distance * distance));
+		att *= 1 - pow(a / d, light[i].falloff);
+
+		vec3 ambient = texture(material.diffuseTexture, retTexCoord).rgb * light[i].ambientColor / numLights;
+		vec3 lambertian = lambertianStrength * texture(material.diffuseTexture, retTexCoord).rgb * light[i].diffuseColor * att;
+		vec3 specular = specularStrength * texture(material.specularTexture, retTexCoord).rgb * light[i].specularColor * att;
+
+		if (a < d)
+		{	
+			finalColor += vec4(lambertian + specular + ambient, 1.0f);
+		}
+		else
+		{
+			finalColor += vec4(ambient, 1.0f);
+		}
+	}
+	FragColor = finalColor;
+}
