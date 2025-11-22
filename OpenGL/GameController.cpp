@@ -47,8 +47,8 @@ void GameController::RunGame()
         
         for (auto& mesh : meshes)
         {
-            mesh->SetRotation(mesh->GetRotation() + Time::Instance().DeltaTime() * glm::vec3(0.0f, mesh->GetRotationRate(), 0.0f));
-            mesh->Render(camera->GetProjection() * camera->GetView(), lights, meshCount);
+            mesh.second->SetRotation(mesh.second->GetRotation() + Time::Instance().DeltaTime() * glm::vec3(0.0f, mesh.second->GetRotationRate(), 0.0f));
+            mesh.second->Render(camera->GetProjection() * camera->GetView(), lights, meshCount);
         }
 
         textController->RenderText(std::to_string(Time::Instance().FPS()), 20, 60, 0.5f, {1.0f, 0.5f, 1.0f});
@@ -63,7 +63,7 @@ void GameController::RunGame()
 
     for (auto& mesh : meshes)
     {
-        delete mesh;
+        delete mesh.second;
     }
 
     for (auto& light: lights)
@@ -155,23 +155,21 @@ void GameController::Load()
     std::string defaultFile = document["DefaultFile"].ToString();
 
     document = LoadJson(defaultFile);
-    
-    json::JSON& lightsJSON = Get(document, "Lights");
-    for (auto& lightJSON : lightsJSON.ArrayRange())
+    for (auto& meshJSON : document.ObjectRange())
     {
-        Mesh* light = new Mesh();
-        light->Create(lightJSON);
-        light->SetCameraPosition(camera->GetPosition());
-        lights.push_back(light);
+        if (
+            meshJSON.first == "Fonts" ||
+            meshJSON.first == "TextController"
+        ) continue;
+        Mesh* mesh = new Mesh();
+        mesh->Create(meshJSON.second);
+        mesh->SetCameraPosition(camera->GetPosition());
+        meshes.emplace(meshJSON.first, mesh);
     }
 
-    json::JSON& meshesJSON = Get(document, "Meshes");
-    for (auto& meshJSON : meshesJSON.ArrayRange())
-    {
-        Mesh* mesh = new Mesh();
-        mesh->Create(meshJSON);
-        mesh->SetCameraPosition(camera->GetPosition());
-        meshes.push_back(mesh);
+    if (meshes.count("Light")) {
+        lights.push_back(meshes["Light"]);
+        meshes.erase("Light");
     }
 #pragma endregion
 
@@ -200,5 +198,4 @@ void GameController::Load()
         textController->Create(document["TextController"]);
     }
 #pragma endregion
-
 }

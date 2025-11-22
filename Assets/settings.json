@@ -1,24 +1,12 @@
 {
-  "DefaultFile": "../Assets/Scenes/Scene.json",
-  "ClearColor": {
-    "r": 0.1,
-    "g": 0.1,
-    "b": 0.1
-  },
-  "Camera": {
-    "Position": {
-      "x": 5.0,
-      "y": 5.0,
-      "z": 5.0
-    },
-    "LookAt": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 0.0
-    },
-    "fov": 45.0,
-    "near": 0.1,
-    "far": 1000.0
+  "DefaultFile" : "../Assets/Scenes/Scene.json",
+  "ClearColor" : { "r" : 0.1, "g" : 0.1, "b" : 0.1 },
+  "Camera" : {
+    "Position" : { "x" : 0.0, "y" : 0.0, "z" : 10.0 },
+    "LookAt" : { "x" : 0.0, "y" : 0.0, "z" : 0.0 },
+    "fov" : 45.0,
+    "near" : 0.1,
+    "far" : 1000.0
   },
   "Shaders": [
     {
@@ -35,6 +23,11 @@
       "name": "Font",
       "vertex": "Font.vertexshader",
       "fragment": "Font.fragmentshader"
+    },
+    {
+      "name": "PositionColor",
+      "vertex": "PointLightShader.vertexshader",
+      "fragment": "PointLightShader.fragmentshader"
     }
   ]
 }

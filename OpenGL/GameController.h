@@ -41,7 +41,7 @@ private:
 	std::map<std::string, Shader*> shaders;
 	std::map<std::string, Font*> fonts;
 
-	std::list<Mesh*> meshes;
+	std::map<std::string, Mesh*> meshes;
 	std::list<Mesh*> lights;
 
 	TextController* textController = nullptr;
