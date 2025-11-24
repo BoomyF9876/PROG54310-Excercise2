@@ -10,7 +10,7 @@
   },
   "Suzanne": {
     "Shader" : "Diffuse",
-    "Model" : "../Assets/Models/Suzzane.obj",
+    "Model" : "../Assets/Models/Suzanne.obj",
     "Position" : { "x" : 0.0, "y" : 0.0, "z" : 0.0 },
     "Scale" : { "x" : 1.0, "y" : 1.0, "z" : 1.0 },
     "SpecularStrength" : 8.0,
@@ -19,7 +19,7 @@
   "Sphere": {
     "Shader" : "Diffuse",
     "Model" : "../Assets/Models/Sphere.obj",
-    "Position" : { "x" : 0.0, "y" : 0.0, "z" : 0.0 },
+    "Position" : { "x" : 5.0, "y" : 0.0, "z" : 0.0 },
     "Scale" : { "x" : 1.0, "y" : 1.0, "z" : 1.0 },
     "SpecularStrength" : 8.0,
     "RotationRate" : 0.0
