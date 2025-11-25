@@ -37,6 +37,15 @@ public:
 		return itr->second;
 	}
 
+	Mesh* GetLight()
+	{
+		if (lights.size() > 0)
+		{
+			return lights.front();
+		}
+		return nullptr;
+	}
+
 private:
 	std::map<std::string, Shader*> shaders;
 	std::map<std::string, Font*> fonts;

@@ -3,6 +3,24 @@
 #include "ToolWindow.h"
 #include "EngineTime.h"
 
+//void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+//{
+//    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+//        GameController* gameController = (GameController*)glfwGetWindowUserPointer(window);
+//        Resolution res = WindowController::GetInstance().GetResolution();
+//        double xpos, ypos;
+//        glfwGetCursorPos(window, &xpos, &ypos);
+//        xpos -= res.width / 2;
+//        ypos = res.height / 2 - ypos;
+//        double distance = glm::distance(xpos, ypos);
+//        std::cout << "Mouse clicked with mouse pos: " << xpos << ", " << ypos << std::endl;
+//        glm::vec3 direction = { xpos / distance, ypos / distance, 0 };
+//        Mesh* light = gameController->GetLight();
+//        
+//        light->SetPosition(light->GetPosition() + direction * Time::Instance().DeltaTime());
+//    }
+//}
+
 void GameController::Initialize()
 {
     GLFWwindow* window = WindowController::GetInstance().GetWindow();
@@ -26,18 +44,24 @@ void GameController::RunGame()
     
     Time::Instance().Initialize();
 
+    //glfwSetWindowUserPointer(window, this);
+    //glfwSetMouseButtonCallback(window, mouse_button_callback);
+
+    double xpos, ypos;
     do {
         Time::Instance().Update();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && meshCount < 1000)
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
-            meshCount++;
-        }
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && meshCount > 1)
-        {
-            meshCount--;
+            Resolution res = WindowController::GetInstance().GetResolution();
+            glfwGetCursorPos(window, &xpos, &ypos);
+            xpos -= res.width / 2;
+            ypos = res.height / 2 - ypos;
+
+            glm::vec3 deltaPos = { xpos * Time::Instance().DeltaTime() * 0.01f, ypos * Time::Instance().DeltaTime() * 0.01f, 0 };
+            GetLight()->SetPosition(GetLight()->GetPosition() + deltaPos);
         }
         
         for (auto& light: lights)
