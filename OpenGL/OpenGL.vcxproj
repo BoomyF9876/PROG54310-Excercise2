@@ -169,6 +169,8 @@ copy /Y "$(SolutionDir)\External\glfw-3.3.4\lib-vc2019\glfw3.dll" "$(TargetDir)"
     <None Include="Font.vertexshader" />
     <None Include="PointLightShader.fragmentshader" />
     <None Include="PointLightShader.vertexshader" />
+    <None Include="PositionColor.fragmentshader" />
+    <None Include="PositionColor.vertexshader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

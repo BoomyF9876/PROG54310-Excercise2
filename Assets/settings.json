@@ -26,8 +26,8 @@
     },
     {
       "name": "PositionColor",
-      "vertex": "PointLightShader.vertexshader",
-      "fragment": "PointLightShader.fragmentshader"
+      "vertex": "PositionColor.vertexshader",
+      "fragment": "PositionColor.fragmentshader"
     }
   ]
 }

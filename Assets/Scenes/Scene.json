@@ -1,40 +1,87 @@
 {
   "Light": {
-    "Shader" : "Color",
-    "Model" : "../Assets/Models/Sphere.obj",
-    "Position" : { "x" : 0.0, "y" : 0.0, "z" : 0.0 },
-    "Scale" : { "x" : 0.1, "y" : 0.1, "z" : 0.1 },
-    "LightColor" : { "r" : 1.0, "g" : 1.0, "b" : 1.0 },
-    "AmbientColor" : { "r" : 1.0, "g" : 1.0, "b" : 1.0 },
-    "SpecularColor" : { "r" : 3.0, "g" : 3.0, "b" : 3.0 }
+    "Shader": "Color",
+    "Model": "../Assets/Models/Sphere.obj",
+    "Position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "Scale": {
+      "x": 0.1,
+      "y": 0.1,
+      "z": 0.1
+    },
+    "LightColor": {
+      "r": 1.0,
+      "g": 1.0,
+      "b": 1.0
+    },
+    "AmbientColor": {
+      "r": 1.0,
+      "g": 1.0,
+      "b": 1.0
+    },
+    "SpecularColor": {
+      "r": 3.0,
+      "g": 3.0,
+      "b": 3.0
+    }
   },
   "Suzanne": {
-    "Shader" : "Diffuse",
-    "Model" : "../Assets/Models/Suzanne.obj",
-    "Position" : { "x" : 0.0, "y" : 0.0, "z" : 0.0 },
-    "Scale" : { "x" : 1.0, "y" : 1.0, "z" : 1.0 },
-    "SpecularStrength" : 8.0,
-    "RotationRate" : 0.0
+    "Shader": "PositionColor",
+    "Model": "../Assets/Models/Suzanne.obj",
+    "Position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "Scale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "SpecularStrength": 8.0,
+    "RotationRate": 0.0
   },
   "Sphere": {
-    "Shader" : "Diffuse",
-    "Model" : "../Assets/Models/Sphere.obj",
-    "Position" : { "x" : 5.0, "y" : 0.0, "z" : 0.0 },
-    "Scale" : { "x" : 1.0, "y" : 1.0, "z" : 1.0 },
-    "SpecularStrength" : 8.0,
-    "RotationRate" : 0.0
+    "Shader": "Diffuse",
+    "Model": "../Assets/Models/Sphere.obj",
+    "Position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "Scale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "SpecularStrength": 8.0,
+    "RotationRate": 0.0
+  },
+  "Cube": {
+    "Shader": "Diffuse",
+    "Model": "../Assets/Models/Cube.obj",
+    "Scale": {
+      "x": 0.5,
+      "y": 0.5,
+      "z": 0.5
+    },
+    "SpecularStrength": 8.0,
+    "RotationRate": 0.0
   },
   "Fonts": [
     {
-      "Name" : "Arial",
-      "Font" : {
+      "Name": "Arial",
+      "Font": {
         "Shader": "Font",
         "Font": "../Assets/Fonts/arial.ttf",
         "Size": 100
       }
     }
   ],
-  "TextController" : {
-    "Font" : "Arial"
+  "TextController": {
+    "Font": "Arial"
   }
 }

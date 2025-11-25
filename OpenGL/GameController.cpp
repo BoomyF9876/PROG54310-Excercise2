@@ -3,23 +3,23 @@
 #include "ToolWindow.h"
 #include "EngineTime.h"
 
-//void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-//{
-//    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-//        GameController* gameController = (GameController*)glfwGetWindowUserPointer(window);
-//        Resolution res = WindowController::GetInstance().GetResolution();
-//        double xpos, ypos;
-//        glfwGetCursorPos(window, &xpos, &ypos);
-//        xpos -= res.width / 2;
-//        ypos = res.height / 2 - ypos;
-//        double distance = glm::distance(xpos, ypos);
-//        std::cout << "Mouse clicked with mouse pos: " << xpos << ", " << ypos << std::endl;
-//        glm::vec3 direction = { xpos / distance, ypos / distance, 0 };
-//        Mesh* light = gameController->GetLight();
-//        
-//        light->SetPosition(light->GetPosition() + direction * Time::Instance().DeltaTime());
-//    }
-//}
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        /*GameController* gameController = (GameController*)glfwGetWindowUserPointer(window);
+        Resolution res = WindowController::GetInstance().GetResolution();
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        xpos -= res.width / 2;
+        ypos = res.height / 2 - ypos;
+        double distance = glm::distance(xpos, ypos);
+        std::cout << "Mouse clicked with mouse pos: " << xpos << ", " << ypos << std::endl;
+        glm::vec3 direction = { xpos / distance, ypos / distance, 0 };
+        Mesh* light = gameController->GetLight();
+        
+        light->SetPosition(light->GetPosition() + direction * Time::Instance().DeltaTime());*/
+    }
+}
 
 void GameController::Initialize()
 {
@@ -41,13 +41,16 @@ void GameController::Initialize()
 void GameController::RunGame()
 {
     GLFWwindow* window = WindowController::GetInstance().GetWindow();
+    Resolution res = WindowController::GetInstance().GetResolution();
     
     Time::Instance().Initialize();
 
-    //glfwSetWindowUserPointer(window, this);
-    //glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetWindowUserPointer(window, this);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     double xpos, ypos;
+    std::string printMsg;
+    glm::vec3 lightPos, deltaPos, cursorPos, newMeshPos;
     do {
         Time::Instance().Update();
 
@@ -55,13 +58,28 @@ void GameController::RunGame()
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
-            Resolution res = WindowController::GetInstance().GetResolution();
             glfwGetCursorPos(window, &xpos, &ypos);
-            xpos -= res.width / 2;
-            ypos = res.height / 2 - ypos;
 
-            glm::vec3 deltaPos = { xpos * Time::Instance().DeltaTime() * 0.01f, ypos * Time::Instance().DeltaTime() * 0.01f, 0 };
-            GetLight()->SetPosition(GetLight()->GetPosition() + deltaPos);
+            cursorPos = glm::vec3(
+                (xpos - res.width / 2) * Time::Instance().DeltaTime() * 0.01f,
+                (res.height / 2 - ypos) * Time::Instance().DeltaTime() * 0.01f,
+                0
+            );
+
+            //deltaPos = glm::unProject(
+            //    lightPos,
+            //    camera->GetView(),
+            //    camera->GetProjection(),
+            //    glm::vec4(0.0f, 0.0f, res.width, res.height)
+            //);
+            //deltaPos = deltaPos / (deltaPos.z * -1.f);
+
+            GetLight()->SetPosition(GetLight()->GetPosition() + cursorPos * 2);
+            meshes["Suzanne"]->SetPosition(meshes["Suzanne"]->GetPosition() + cursorPos);
+
+            newMeshPos = glm::vec3(-20 + rand() % 40, -10 + rand() % 20, -10 + rand() % 20);
+            meshes["Cube"]->SetPosition(newMeshPos);
+            tempMeshes.push_back(new Mesh(*meshes["Cube"]));
         }
         
         for (auto& light: lights)
@@ -75,7 +93,21 @@ void GameController::RunGame()
             mesh.second->Render(camera->GetProjection() * camera->GetView(), lights, meshCount);
         }
 
-        textController->RenderText(std::to_string(Time::Instance().FPS()), 20, 60, 0.5f, {1.0f, 0.5f, 1.0f});
+        for (auto& tempMesh : tempMeshes)
+        {
+            if (glm::length(tempMesh->GetPosition()) > 0.01)
+            {
+                tempMesh->SetPosition(tempMesh->GetPosition() * (1 - Time::Instance().DeltaTime()));
+                tempMesh->Render(camera->GetProjection() * camera->GetView(), lights);
+            }
+        }
+
+        lightPos = GetLight()->GetPosition();
+        printMsg = "Light Position: " + std::to_string(lightPos.x) + ", " + std::to_string(lightPos.y) + ", " + std::to_string(lightPos.z);
+        textController->RenderText(printMsg, 20, 60, 0.5f, {1.0f, 0.5f, 1.0f});
+        
+        printMsg = "Total Cubes: " + std::to_string(tempMeshes.size());
+        textController->RenderText(printMsg, 20, 120, 0.5f, { 1.0f, 1.0f, 0.0f });
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -93,6 +125,11 @@ void GameController::RunGame()
     for (auto& light: lights)
     {
         delete light;
+    }
+
+    for (auto& tempMesh : tempMeshes)
+    {
+        delete tempMesh;
     }
 
     for (auto& shader : shaders)

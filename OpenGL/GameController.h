@@ -52,6 +52,7 @@ private:
 
 	std::map<std::string, Mesh*> meshes;
 	std::list<Mesh*> lights;
+	std::list<Mesh*> tempMeshes;
 
 	TextController* textController = nullptr;
 	Camera* camera = nullptr;
