@@ -6,18 +6,16 @@
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        /*GameController* gameController = (GameController*)glfwGetWindowUserPointer(window);
-        Resolution res = WindowController::GetInstance().GetResolution();
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        xpos -= res.width / 2;
-        ypos = res.height / 2 - ypos;
-        double distance = glm::distance(xpos, ypos);
-        std::cout << "Mouse clicked with mouse pos: " << xpos << ", " << ypos << std::endl;
-        glm::vec3 direction = { xpos / distance, ypos / distance, 0 };
-        Mesh* light = gameController->GetLight();
-        
-        light->SetPosition(light->GetPosition() + direction * Time::Instance().DeltaTime());*/
+        GameController* gameController = (GameController*)glfwGetWindowUserPointer(window);
+
+        glm::vec3 newMeshPos = glm::vec3(-20 + rand() % 40, -10 + rand() % 20, -10 + rand() % 20);
+
+        Mesh* newCube = new Mesh();
+        newCube->Create(gameController->GetCubeJSON());
+        newCube->SetPosition(newMeshPos);
+        newCube->SetCameraPosition(gameController->GetCamera()->GetPosition());
+
+        gameController->GetTempMeshes().push_back(newCube);
     }
 }
 
@@ -66,20 +64,22 @@ void GameController::RunGame()
                 0
             );
 
-            //deltaPos = glm::unProject(
-            //    lightPos,
-            //    camera->GetView(),
-            //    camera->GetProjection(),
-            //    glm::vec4(0.0f, 0.0f, res.width, res.height)
-            //);
-            //deltaPos = deltaPos / (deltaPos.z * -1.f);
+            GetLight()->SetPosition(GetLight()->GetPosition() + cursorPos * 2);
+            meshes["Suzanne"]->SetPosition(meshes["Suzanne"]->GetPosition() + cursorPos);
+        }
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
+        {
+            glfwGetCursorPos(window, &xpos, &ypos);
+
+            cursorPos = glm::vec3(
+                0,
+                0,
+                (res.height / 2 - ypos) * Time::Instance().DeltaTime() * -0.01f
+            );
 
             GetLight()->SetPosition(GetLight()->GetPosition() + cursorPos * 2);
             meshes["Suzanne"]->SetPosition(meshes["Suzanne"]->GetPosition() + cursorPos);
-
-            newMeshPos = glm::vec3(-20 + rand() % 40, -10 + rand() % 20, -10 + rand() % 20);
-            meshes["Cube"]->SetPosition(newMeshPos);
-            tempMeshes.push_back(new Mesh(*meshes["Cube"]));
         }
         
         for (auto& light: lights)
@@ -93,12 +93,16 @@ void GameController::RunGame()
             mesh.second->Render(camera->GetProjection() * camera->GetView(), lights, meshCount);
         }
 
-        for (auto& tempMesh : tempMeshes)
-        {
-            if (glm::length(tempMesh->GetPosition()) > 0.01)
-            {
-                tempMesh->SetPosition(tempMesh->GetPosition() * (1 - Time::Instance().DeltaTime()));
-                tempMesh->Render(camera->GetProjection() * camera->GetView(), lights);
+        auto it = tempMeshes.begin();
+        while (it != tempMeshes.end()) {
+            if (glm::length((*it)->GetPosition()) > 0.1) {
+                (*it)->SetPosition((*it)->GetPosition() * (1 - Time::Instance().DeltaTime()));
+                (*it)->Render(camera->GetProjection() * camera->GetView(), lights);
+                ++it;
+            }
+            else {
+                delete (*it);
+                it = tempMeshes.erase(it);
             }
         }
 
@@ -222,10 +226,15 @@ void GameController::Load()
             meshJSON.first == "Fonts" ||
             meshJSON.first == "TextController"
         ) continue;
-        Mesh* mesh = new Mesh();
-        mesh->Create(meshJSON.second);
-        mesh->SetCameraPosition(camera->GetPosition());
-        meshes.emplace(meshJSON.first, mesh);
+
+        if (meshJSON.first == "Cube") cubeJSON = meshJSON.second;
+        else
+        {
+            Mesh* mesh = new Mesh();
+            mesh->Create(meshJSON.second);
+            mesh->SetCameraPosition(camera->GetPosition());
+            meshes.emplace(meshJSON.first, mesh);
+        }
     }
 
     if (meshes.count("Light")) {
