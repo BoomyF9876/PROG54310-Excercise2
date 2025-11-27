@@ -7,10 +7,7 @@ out vec4 FragColor;
 
 struct Material
 {
-	float specularStrength;
 	sampler2D diffuseTexture;
-	sampler2D specularTexture;
-	sampler2D normalTexture;
 };
 
 uniform Material material;
@@ -19,7 +16,5 @@ void main()
 {
 	vec4 diffColor = texture(material.diffuseTexture, retTexCoord);
 
-	vec3 ambient = vec3(0.3f, 0.3f, 0.3f);
-
-	FragColor = vec4(diffColor.rgb * retFragPos + ambient, 1.0f);
+	FragColor = vec4(diffColor.rgb + retFragPos, 1.0f);
 }

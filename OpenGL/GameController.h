@@ -46,10 +46,6 @@ public:
 		return nullptr;
 	}
 
-	std::map<std::string, Mesh*>& GetMeshes() { return meshes; }
-	std::list<Mesh*>& GetTempMeshes() { return tempMeshes; }
-	json::JSON& GetCubeJSON() { return cubeJSON; }
-	Camera* GetCamera() { return camera; }
 private:
 	std::map<std::string, Shader*> shaders;
 	std::map<std::string, Font*> fonts;

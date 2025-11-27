@@ -11,14 +11,3 @@ illum 2
 map_Kd C:/Users/boomy/Desktop/projects/sheridan/PROG54310-Excercise2/Assets/Textures/Suzanne_Base_Color.jpg
 map_Ks C:/Users/boomy/Desktop/projects/sheridan/PROG54310-Excercise2/Assets/Textures/Suzanne_Specular_Color.jpg
 map_Bump -bm 1.000000 C:/Users/boomy/Desktop/projects/sheridan/PROG54310-Excercise2/Assets/Textures/Suzanne_Normal_Color.jpg
-
-newmtl Material.002
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd C:/Users/boomy/Desktop/projects/sheridan/PROG54310-Excercise2/Assets/Textures/Suzanne_Base_Color.jpg
-map_Ks C:/Users/boomy/Desktop/projects/sheridan/PROG54310-Excercise2/Assets/Textures/Suzanne_Specular_Color.jpg
-map_Bump -bm 1.000000 C:/Users/boomy/Desktop/projects/sheridan/PROG54310-Excercise2/Assets/Textures/Suzanne_Normal_Color.jpg

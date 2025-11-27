@@ -3,22 +3,6 @@
 #include "ToolWindow.h"
 #include "EngineTime.h"
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        GameController* gameController = (GameController*)glfwGetWindowUserPointer(window);
-
-        glm::vec3 newMeshPos = glm::vec3(-20 + rand() % 40, -10 + rand() % 20, -10 + rand() % 20);
-
-        Mesh* newCube = new Mesh();
-        newCube->Create(gameController->GetCubeJSON());
-        newCube->SetPosition(newMeshPos);
-        newCube->SetCameraPosition(gameController->GetCamera()->GetPosition());
-
-        gameController->GetTempMeshes().push_back(newCube);
-    }
-}
-
 void GameController::Initialize()
 {
     GLFWwindow* window = WindowController::GetInstance().GetWindow();
@@ -43,12 +27,10 @@ void GameController::RunGame()
     
     Time::Instance().Initialize();
 
-    glfwSetWindowUserPointer(window, this);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-
     double xpos, ypos;
     std::string printMsg;
-    glm::vec3 lightPos, deltaPos, cursorPos, newMeshPos;
+    Mesh* newCube;
+    glm::vec3 lightPos, cursorPos, newMeshPos;
     do {
         Time::Instance().Update();
 
@@ -64,8 +46,19 @@ void GameController::RunGame()
                 0
             );
 
-            GetLight()->SetPosition(GetLight()->GetPosition() + cursorPos * 2);
+            GetLight()->SetPosition(GetLight()->GetPosition() + cursorPos);
             meshes["Suzanne"]->SetPosition(meshes["Suzanne"]->GetPosition() + cursorPos);
+        }
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+            newMeshPos = glm::vec3(-20 + rand() % 40, -10 + rand() % 20, -10 + rand() % 20);
+
+            newCube = new Mesh();
+            newCube->Create(cubeJSON);
+            newCube->SetPosition(newMeshPos);
+            newCube->SetCameraPosition(camera->GetPosition());
+
+            tempMeshes.push_back(newCube);
         }
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
@@ -78,7 +71,7 @@ void GameController::RunGame()
                 (res.height / 2 - ypos) * Time::Instance().DeltaTime() * -0.01f
             );
 
-            GetLight()->SetPosition(GetLight()->GetPosition() + cursorPos * 2);
+            GetLight()->SetPosition(GetLight()->GetPosition() + cursorPos);
             meshes["Suzanne"]->SetPosition(meshes["Suzanne"]->GetPosition() + cursorPos);
         }
         
@@ -126,14 +119,14 @@ void GameController::RunGame()
         delete mesh.second;
     }
 
-    for (auto& light: lights)
-    {
-        delete light;
-    }
-
     for (auto& tempMesh : tempMeshes)
     {
         delete tempMesh;
+    }
+
+    for (auto& light: lights)
+    {
+        delete light;
     }
 
     for (auto& shader : shaders)
