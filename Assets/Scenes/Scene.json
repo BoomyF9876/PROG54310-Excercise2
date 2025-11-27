@@ -29,7 +29,7 @@
     }
   },
   "Suzanne": {
-    "Shader": "PositionColor",
+    "Shader": "Diffuse",
     "Model": "../Assets/Models/Suzanne.obj",
     "Position": {
       "x": 0.0,

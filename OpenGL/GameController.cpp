@@ -22,10 +22,13 @@ void GameController::Initialize()
 
 void GameController::RunGame()
 {
+    OpenGL::ToolWindow^ toolWindow = gcnew OpenGL::ToolWindow();
     GLFWwindow* window = WindowController::GetInstance().GetWindow();
     Resolution res = WindowController::GetInstance().GetResolution();
     
     Time::Instance().Initialize();
+
+    toolWindow->Show();
 
     double xpos, ypos;
     std::string printMsg;
