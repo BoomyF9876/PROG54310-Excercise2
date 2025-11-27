@@ -3,6 +3,53 @@
 #include "ToolWindow.h"
 #include "EngineTime.h"
 
+void GameController::RenderMesh(std::string meshName)
+{
+    meshes[meshName]->SetRotation(meshes[meshName]->GetRotation() + Time::Instance().DeltaTime() * glm::vec3(0.0f, meshes[meshName]->GetRotationRate(), 0.0f));
+    meshes[meshName]->Render(camera->GetProjection() * camera->GetView(), lights, meshCount);
+}
+
+void GameController::RenderMouseEventListener(Mesh* mesh, GLFWwindow* window, std::string meshKey, std::string shaderKey, std::string displayText)
+{
+    double xpos, ypos;
+    glm::vec3 cursorPos, displayPos;
+    std::string printMsg;
+    Resolution res = WindowController::GetInstance().GetResolution();
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        cursorPos = glm::vec3(
+            (xpos - res.width / 2) * Time::Instance().DeltaTime() * 0.01f,
+            (res.height / 2 - ypos) * Time::Instance().DeltaTime() * 0.01f,
+            0
+        );
+
+        mesh->SetPosition(mesh->GetPosition() + cursorPos);
+    }
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
+    {
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        cursorPos = glm::vec3(
+            0,
+            0,
+            (res.height / 2 - ypos) * Time::Instance().DeltaTime() * -0.01f
+        );
+
+        mesh->SetPosition(mesh->GetPosition() + cursorPos);
+    }
+
+    meshes[meshKey]->SetShader(shaders[shaderKey]);
+    RenderMesh(meshKey);
+
+    displayPos = mesh->GetPosition();
+    printMsg = displayText + std::to_string(displayPos.x) + ", " + std::to_string(displayPos.y) + ", " + std::to_string(displayPos.z);
+    textController->RenderText(printMsg, 20, 60, 0.5f, { 1.0f, 0.5f, 1.0f });
+}
+
 void GameController::Initialize()
 {
     GLFWwindow* window = WindowController::GetInstance().GetWindow();
@@ -24,90 +71,58 @@ void GameController::RunGame()
 {
     OpenGL::ToolWindow^ toolWindow = gcnew OpenGL::ToolWindow();
     GLFWwindow* window = WindowController::GetInstance().GetWindow();
-    Resolution res = WindowController::GetInstance().GetResolution();
     
     Time::Instance().Initialize();
 
     toolWindow->Show();
 
-    double xpos, ypos;
     std::string printMsg;
     Mesh* newCube;
-    glm::vec3 lightPos, cursorPos, newMeshPos;
+    glm::vec3 newMeshPos;
     do {
         Time::Instance().Update();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        if (toolWindow->moveLight || toolWindow->cubeToSphere)
         {
-            glfwGetCursorPos(window, &xpos, &ypos);
-
-            cursorPos = glm::vec3(
-                (xpos - res.width / 2) * Time::Instance().DeltaTime() * 0.01f,
-                (res.height / 2 - ypos) * Time::Instance().DeltaTime() * 0.01f,
-                0
-            );
-
-            GetLight()->SetPosition(GetLight()->GetPosition() + cursorPos);
-            meshes["Suzanne"]->SetPosition(meshes["Suzanne"]->GetPosition() + cursorPos);
-        }
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-            newMeshPos = glm::vec3(-20 + rand() % 40, -10 + rand() % 20, -10 + rand() % 20);
-
-            newCube = new Mesh();
-            newCube->Create(cubeJSON);
-            newCube->SetPosition(newMeshPos);
-            newCube->SetCameraPosition(camera->GetPosition());
-
-            tempMeshes.push_back(newCube);
-        }
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
-        {
-            glfwGetCursorPos(window, &xpos, &ypos);
-
-            cursorPos = glm::vec3(
-                0,
-                0,
-                (res.height / 2 - ypos) * Time::Instance().DeltaTime() * -0.01f
-            );
-
-            GetLight()->SetPosition(GetLight()->GetPosition() + cursorPos);
-            meshes["Suzanne"]->SetPosition(meshes["Suzanne"]->GetPosition() + cursorPos);
-        }
-        
-        for (auto& light: lights)
-        {
-            light->Render(camera->GetProjection() * camera->GetView(), lights);
-        }
-        
-        for (auto& mesh : meshes)
-        {
-            mesh.second->SetRotation(mesh.second->GetRotation() + Time::Instance().DeltaTime() * glm::vec3(0.0f, mesh.second->GetRotationRate(), 0.0f));
-            mesh.second->Render(camera->GetProjection() * camera->GetView(), lights, meshCount);
-        }
-
-        auto it = tempMeshes.begin();
-        while (it != tempMeshes.end()) {
-            if (glm::length((*it)->GetPosition()) > 0.1) {
-                (*it)->SetPosition((*it)->GetPosition() * (1 - Time::Instance().DeltaTime()));
-                (*it)->Render(camera->GetProjection() * camera->GetView(), lights);
-                ++it;
-            }
-            else {
-                delete (*it);
-                it = tempMeshes.erase(it);
+            for (auto& light: lights)
+            {
+                light->Render(camera->GetProjection() * camera->GetView(), lights);
             }
         }
-
-        lightPos = GetLight()->GetPosition();
-        printMsg = "Light Position: " + std::to_string(lightPos.x) + ", " + std::to_string(lightPos.y) + ", " + std::to_string(lightPos.z);
-        textController->RenderText(printMsg, 20, 60, 0.5f, {1.0f, 0.5f, 1.0f});
         
-        printMsg = "Total Cubes: " + std::to_string(tempMeshes.size());
-        textController->RenderText(printMsg, 20, 120, 0.5f, { 1.0f, 1.0f, 0.0f });
+        if (toolWindow->moveLight) RenderMouseEventListener(GetLight(), window, "Suzanne", "Diffuse", "Light Position: ");
+        if (toolWindow->posColor) RenderMouseEventListener(meshes["Suzanne"], window, "Suzanne", "PositionColor", "Suzanne Position: ");
+
+        if (toolWindow->cubeToSphere)
+        {
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+                newMeshPos = glm::vec3(-20 + rand() % 40, -10 + rand() % 20, -10 + rand() % 20);
+
+                newCube = new Mesh();
+                newCube->Create(cubeJSON);
+                newCube->SetPosition(newMeshPos);
+                newCube->SetCameraPosition(camera->GetPosition());
+
+                tempMeshes.push_back(newCube);
+            }
+            RenderMesh("Sphere");
+            auto it = tempMeshes.begin();
+            while (it != tempMeshes.end()) {
+                if (glm::length((*it)->GetPosition()) > 0.1) {
+                    (*it)->SetPosition((*it)->GetPosition() * (1 - Time::Instance().DeltaTime()));
+                    (*it)->Render(camera->GetProjection() * camera->GetView(), lights);
+                    ++it;
+                }
+                else {
+                    delete (*it);
+                    it = tempMeshes.erase(it);
+                }
+            }
+            printMsg = "Total Cubes: " + std::to_string(tempMeshes.size());
+            textController->RenderText(printMsg, 20, 60, 0.5f, { 1.0f, 1.0f, 0.0f });
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -46,6 +46,9 @@ public:
 		return nullptr;
 	}
 
+	void RenderMesh(std::string meshName);
+	void RenderMouseEventListener(Mesh* mesh, GLFWwindow* window, std::string meshKey, std::string shaderKey, std::string displayText);
+
 private:
 	std::map<std::string, Shader*> shaders;
 	std::map<std::string, Font*> fonts;
