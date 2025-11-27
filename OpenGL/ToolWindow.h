@@ -17,7 +17,7 @@ namespace OpenGL {
 	public ref class ToolWindow : public System::Windows::Forms::Form
 	{
 	public:
-		static bool moveLight, posColor, cubeToSphere;
+		static bool moveLight, posColor, cubeToSphere, isResetLightClicked, isResetSuzClicked;
 	private: System::Windows::Forms::RadioButton^ radioButton1;
 	private: System::Windows::Forms::RadioButton^ radioButton2;
 	private: System::Windows::Forms::RadioButton^ radioButton3;
@@ -156,10 +156,10 @@ namespace OpenGL {
 		cubeToSphere = ((RadioButton^)sender)->Checked;
 	}
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-
+		isResetLightClicked = true;
 	}
 	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
-
+		isResetSuzClicked = true;
 	}
 };
 }

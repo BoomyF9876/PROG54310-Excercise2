@@ -4,11 +4,13 @@
 #define _GAMECONTROLLER_H_
 
 #include "StandardIncludes.h"
-#include "Shader.h"
-#include "Mesh.h"
-#include "Font.h"
-#include "Camera.h"
-#include "TextController.h"
+#include "ToolWindow.h"
+
+class Font;
+class Mesh;
+class Shader;
+class Camera;
+class TextController;
 
 class GameController
 {
@@ -47,7 +49,7 @@ public:
 	}
 
 	void RenderMesh(std::string meshName);
-	void RenderMouseEventListener(Mesh* mesh, GLFWwindow* window, std::string meshKey, std::string shaderKey, std::string displayText);
+	void RenderMouseEventListener(OpenGL::ToolWindow^ toolWindow, Mesh* mesh, GLFWwindow* window, std::string meshKey, std::string shaderKey, std::string displayText);
 
 private:
 	std::map<std::string, Shader*> shaders;

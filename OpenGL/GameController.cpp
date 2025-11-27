@@ -1,7 +1,11 @@
 #include "GameController.h"
+#include "TextController.h"
 #include "WindowController.h"
-#include "ToolWindow.h"
 #include "EngineTime.h"
+#include "Camera.h"
+#include "Shader.h"
+#include "Mesh.h"
+#include "Font.h"
 
 void GameController::RenderMesh(std::string meshName)
 {
@@ -9,7 +13,14 @@ void GameController::RenderMesh(std::string meshName)
     meshes[meshName]->Render(camera->GetProjection() * camera->GetView(), lights, meshCount);
 }
 
-void GameController::RenderMouseEventListener(Mesh* mesh, GLFWwindow* window, std::string meshKey, std::string shaderKey, std::string displayText)
+void GameController::RenderMouseEventListener(
+    OpenGL::ToolWindow^ toolWindow,
+    Mesh* mesh,
+    GLFWwindow* window,
+    std::string meshKey,
+    std::string shaderKey,
+    std::string displayText
+)
 {
     double xpos, ypos;
     glm::vec3 cursorPos, displayPos;
@@ -42,6 +53,11 @@ void GameController::RenderMouseEventListener(Mesh* mesh, GLFWwindow* window, st
         mesh->SetPosition(mesh->GetPosition() + cursorPos);
     }
 
+    if (toolWindow->isResetSuzClicked)
+    {
+        meshes[meshKey]->SetPosition(glm::vec3(0, 0, 0));
+        toolWindow->isResetSuzClicked = false;
+    }
     meshes[meshKey]->SetShader(shaders[shaderKey]);
     RenderMesh(meshKey);
 
@@ -69,16 +85,14 @@ void GameController::Initialize()
 
 void GameController::RunGame()
 {
-    OpenGL::ToolWindow^ toolWindow = gcnew OpenGL::ToolWindow();
-    GLFWwindow* window = WindowController::GetInstance().GetWindow();
-    
     Time::Instance().Initialize();
-
+    GLFWwindow* window = WindowController::GetInstance().GetWindow();
+    OpenGL::ToolWindow^ toolWindow = gcnew OpenGL::ToolWindow();
     toolWindow->Show();
 
     std::string printMsg;
-    Mesh* newCube;
     glm::vec3 newMeshPos;
+    Mesh* newCube;
     do {
         Time::Instance().Update();
 
@@ -86,14 +100,16 @@ void GameController::RunGame()
 
         if (toolWindow->moveLight || toolWindow->cubeToSphere)
         {
-            for (auto& light: lights)
+            if (toolWindow->isResetLightClicked)
             {
-                light->Render(camera->GetProjection() * camera->GetView(), lights);
+                GetLight()->SetPosition(glm::vec3(0, 0, 0));
+                toolWindow->isResetLightClicked = false;
             }
+            GetLight()->Render(camera->GetProjection() * camera->GetView(), lights);
         }
         
-        if (toolWindow->moveLight) RenderMouseEventListener(GetLight(), window, "Suzanne", "Diffuse", "Light Position: ");
-        if (toolWindow->posColor) RenderMouseEventListener(meshes["Suzanne"], window, "Suzanne", "PositionColor", "Suzanne Position: ");
+        if (toolWindow->moveLight) RenderMouseEventListener(toolWindow, GetLight(), window, "Suzanne", "Diffuse", "Light Position: ");
+        if (toolWindow->posColor) RenderMouseEventListener(toolWindow, meshes["Suzanne"], window, "Suzanne", "PositionColor", "Suzanne Position: ");
 
         if (toolWindow->cubeToSphere)
         {
