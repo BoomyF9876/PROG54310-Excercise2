@@ -126,7 +126,7 @@ void GameController::RunGame()
             RenderMesh("Sphere");
             auto it = tempMeshes.begin();
             while (it != tempMeshes.end()) {
-                if (glm::length((*it)->GetPosition()) > 0.1) {
+                if (glm::length((*it)->GetPosition()) > 0.2f) {
                     (*it)->SetPosition((*it)->GetPosition() * (1 - Time::Instance().DeltaTime()));
                     (*it)->Render(camera->GetProjection() * camera->GetView(), lights);
                     ++it;

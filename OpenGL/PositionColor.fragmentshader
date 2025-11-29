@@ -16,5 +16,7 @@ void main()
 {
 	vec4 diffColor = texture(material.diffuseTexture, retTexCoord);
 
-	FragColor = vec4(diffColor.rgb + retFragPos, 1.0f);
+	vec3 fusionColor = diffColor.rgb * abs(retFragPos);
+
+	FragColor = vec4(fusionColor * 1.0f / length(fusionColor), 1.0f);
 }
